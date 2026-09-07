@@ -1,0 +1,35 @@
+# --- R / RStudio ---
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+*.Rproj
+
+# --- Cache de dados baixados da API do IPEA (regenerável) ---
+cache_ipea/
+
+# --- Saídas interativas grandes/regeneráveis (mantemos as figuras PNG estáticas) ---
+resultados/
+resultados_transmissao/*.html
+resultados_transmissao/*_files/
+
+# --- Pacotes .zip regeneráveis (a pasta overleaf/ é a fonte) ---
+*.zip
+
+# --- Build LaTeX ---
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.loq
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+
+# --- Sistema operacional ---
+.DS_Store
+Thumbs.db

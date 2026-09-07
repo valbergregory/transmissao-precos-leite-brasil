@@ -1,0 +1,20 @@
+\begin{quadro}[!h]
+\centering
+\caption{\label{quad:metodos}Métodos, hipóteses e interpretação.}
+\centering
+\fontsize{9}{11}\selectfont
+\begin{tabular}[t]{>{\raggedright\arraybackslash}p{3.4cm}>{\raggedright\arraybackslash}p{5.6cm}>{\raggedright\arraybackslash}p{6cm}}
+\toprule
+\textbf{Método} & \textbf{Hipótese nula ($H_0$)} & \textbf{Rejeitar $H_0$ indica}\\
+\midrule
+\cellcolor{gray!10}{ADF / Phillips-Perron} & \cellcolor{gray!10}{série tem raiz unitária} & \cellcolor{gray!10}{série estacionária}\\
+KPSS & série é estacionária & série não estacionária\\
+\cellcolor{gray!10}{Johansen (traço)} & \cellcolor{gray!10}{posto de cointegração $=r$} & \cellcolor{gray!10}{há relação(ões) de longo prazo}\\
+Phillips-Ouliaris & não há cointegração & mercados cointegrados\\
+\cellcolor{gray!10}{ECM assimétrico (Wald)} & \cellcolor{gray!10}{$\alpha^{+}=\alpha^{-}$ (simétrico)} & \cellcolor{gray!10}{transmissão assimétrica}\\
+M-TAR (Enders-Siklos) & $\rho^{+}=\rho^{-}$ (simétrico) & assimetria no ajuste ao limiar\\
+\cellcolor{gray!10}{Hansen-Seo} & \cellcolor{gray!10}{VECM linear} & \cellcolor{gray!10}{há efeito de limiar (TVECM)}\\
+Granger & $X$ não antecede $Y$ & $X$ ajuda a prever $Y$\\
+\bottomrule
+\end{tabular}
+\end{quadro}
