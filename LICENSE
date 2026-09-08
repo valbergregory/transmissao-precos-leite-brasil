@@ -19,10 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-NOTA SOBRE OS DADOS: os preços do leite provêm do CEPEA/ESALQ-USP e o IPCA do
-IBGE (obtido via API do IPEA). Esses dados pertencem às respectivas fontes e
-estão aqui redistribuídos apenas para fins de reprodutibilidade acadêmica,
-com a devida atribuição. Consulte os termos de uso do CEPEA para outros usos.
