@@ -4,21 +4,16 @@ Análise econométrica da **integração e transmissão espacial** de preços do
 produtor entre as principais regiões do Brasil, com dados mensais do **CEPEA/ESALQ-USP**
 (jan/2016–abr/2026) deflacionados pelo **IPCA**. O estudo aplica o arcabouço clássico de
 transmissão de preços agrícolas — cointegração, correção de erro, assimetria e modelos
-com limiar (TVECM) — e entrega o artigo pronto no **formato ANPEC**.
+com limiar (TVECM) — e entrega o **esqueleto LaTeX** do artigo no **formato ANPEC**.
 
 ![R](https://img.shields.io/badge/R-4.4-276DC3?logo=r) ![LaTeX](https://img.shields.io/badge/LaTeX-ANPEC-008080) ![License](https://img.shields.io/badge/license-MIT-green)
 
-## Principais achados
+## Resultados
 
-- **Mercados fortemente integrados**: séries $I(1)$ e cointegradas (Johansen +
-  Phillips-Ouliaris); elasticidades de longo prazo próximas de 1 (**Lei do Preço Único**).
-- **Ajuste rápido ao equilíbrio**: correção de erro de **15% a 46% ao mês** (Santa
-  Catarina e Paraná os mais integrados).
-- **Transmissão majoritariamente simétrica** entre altas e baixas (ECM assimétrico e M-TAR).
-- **Banda de não-arbitragem**: o teste de Hansen-Seo detecta **efeito de limiar** (TVECM)
-  em pares selecionados (ex.: Minas Gerais e São Paulo), compatível com custos de transação.
-- **Liderança de preço** da referência nacional e dos grandes estados produtores (Granger,
-  IRF/FEVD).
+Os resultados numéricos estão nas tabelas (`overleaf/tabelas/*.tex`,
+`resultados_transmissao/tab_*.csv`) e nas figuras (`resultados_transmissao/fig/`,
+`overleaf/figuras/`), todos gerados pelos scripts em `R/`. A interpretação e a
+redação do artigo são do autor e não fazem parte deste repositório.
 
 <p align="center">
   <img src="resultados_transmissao/fig/fig01_series.png" width="48%" alt="Séries de preço real"/>
@@ -32,7 +27,7 @@ com limiar (TVECM) — e entrega o artigo pronto no **formato ANPEC**.
 ├── R/                              # scripts (rodar a partir da raiz do repositório)
 │   ├── construir_base_cepea.R      #  1. lê os .xls do CEPEA -> dados/cepea_leite_regioes.csv
 │   ├── analise_transmissao_leite.R #  2. análise de transmissão (figuras + tabelas + relatório)
-│   ├── gerar_latex.R               #  3. gera as tabelas .tex (kableExtra) e o projeto Overleaf
+│   ├── gerar_latex.R               #  3. gera as tabelas .tex e copia as figuras para overleaf/
 │   └── analise_preco_leite.R       #  (complementar) previsão univariada via API do IPEA
 ├── dados/
 │   ├── brutos_cepea/               # 12 planilhas .xls originais do CEPEA (fonte)
@@ -40,15 +35,15 @@ com limiar (TVECM) — e entrega o artigo pronto no **formato ANPEC**.
 ├── resultados_transmissao/
 │   ├── fig/                        # 7 figuras (PNG 300 dpi)
 │   ├── tab_*.csv                   # tabelas de resultados
-│   └── relatorio_transmissao.txt   # relatório em texto
-├── overleaf/                       # projeto LaTeX (formato ANPEC) pronto p/ upload
-│   ├── main.tex, referencias.bib, README.txt
-│   ├── tabelas/ (booktabs, kableExtra)  e  figuras/
-│   └── preview_main.pdf            # PDF compilado (preview)
-├── entregaveis/
-│   └── Relatorio_Transmissao_Precos_Leite.docx   # relatório em Word
+│   └── relatorio_transmissao.txt   # saída textual dos testes
+├── overleaf/                       # esqueleto LaTeX (formato ANPEC) p/ upload
+│   ├── main.tex                    # estrutura + tabelas + figuras; prosa: % AUTHOR WRITES
+│   ├── referencias.bib, README.txt
+│   └── tabelas/ (booktabs, kableExtra)  e  figuras/
 ├── LICENSE  ·  .gitignore  ·  README.md
 ```
+
+PDFs, DOCX e pacotes `.zip` não são versionados (`.gitignore`).
 
 ## Como reproduzir
 
@@ -68,7 +63,8 @@ source("R/gerar_latex.R")               # gera as tabelas .tex e atualiza overle
 ```
 
 Para o artigo: suba a pasta `overleaf/` no [Overleaf](https://www.overleaf.com)
-(*New Project → Upload Project*), compilador **pdfLaTeX**.
+(*New Project → Upload Project*), compilador **pdfLaTeX**, e redija o texto nos
+pontos marcados com `% AUTHOR WRITES`.
 
 ## Dados
 
@@ -86,10 +82,15 @@ Raiz unitária (ADF, PP, KPSS) · cointegração de **Johansen** e **Phillips-Ou
 **M-TAR** (Enders & Siklos) · **TVECM** com teste de **Hansen & Seo** (banda de
 não-arbitragem; Balke & Fomby) · **causalidade de Granger** · **VAR/IRF/FEVD**.
 
-## Licença e citação
+## Licença, citação e uso de IA
 
 Código sob licença **MIT** (ver [LICENSE](LICENSE)). Os dados pertencem ao CEPEA/ESALQ-USP
 e ao IBGE/IPEA (redistribuídos apenas para reprodutibilidade acadêmica).
+
+O `overleaf/main.tex` contém apenas estrutura, tabelas e figuras; a prosa do artigo é
+redigida integralmente pelo autor fora deste repositório. Ferramentas de IA generativa
+foram usadas na organização do código e do repositório; a declaração de uso de IA
+exigida pelo evento ou revista será redigida pelo autor no momento da submissão.
 
 > Bezerra, V. (2026). *Transmissão de preços do leite ao produtor entre regiões
 > brasileiras: cointegração, correção de erro, assimetria e modelos com limiar (TVECM)*.

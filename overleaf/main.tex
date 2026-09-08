@@ -62,7 +62,6 @@
   {\large\bfseries \artigotitulo}\\[6pt]
   {\bfseries \artigotituloen}
 \end{center}
-\vspace{0.4em}
 
 % --- Na versão NÃO anônima, descomente e preencha o bloco de autores:
 % \begin{center}
@@ -71,84 +70,25 @@
 % \end{center}
 
 \begin{spacing}{1.0}
-\noindent\textbf{Resumo.} Este artigo investiga a integração e a transmissão espacial
-de preços do leite ao produtor entre as principais regiões do Brasil, usando dados
-mensais do CEPEA/ESALQ-USP (janeiro de 2016 a abril de 2026) deflacionados pelo IPCA.
-Empregam-se testes de raiz unitária, cointegração de Johansen e Phillips-Ouliaris,
-modelos de correção de erro (ECM) e suas extensões assimétrica e com limiar
---- cointegração M-TAR e VECM com limiar (TVECM), que capta a banda de não-arbitragem
-associada a custos de transação ---, além de causalidade de Granger e funções de
-impulso-resposta. Os resultados indicam mercados fortemente integrados, com
-elasticidades de longo prazo próximas da unidade, correção de erro rápida (15\% a 46\%
-ao mês), transmissão majoritariamente simétrica e evidência de efeito de limiar em
-pares selecionados. A referência nacional e os grandes estados produtores lideram o
-descobrimento de preços.
-
-\smallskip
-\noindent\textbf{Palavras-chave:} transmissão de preços; cointegração; mercado do leite;
-VECM com limiar; integração espacial.
-
-\noindent\textbf{Classificação JEL:} Q13; Q11; C32.
-
-\noindent\textbf{Área ANPEC:} Área 11 --- Economia Agrícola e do Meio Ambiente.
-\hfill{\footnotesize\itshape (confirmar a numeração/área vigente no edital do ano)}
-
-\medskip
-\noindent\textbf{Abstract.} This paper examines the integration and spatial transmission
-of farm-gate milk prices across the main Brazilian regions, using monthly CEPEA/ESALQ-USP
-data (January 2016 to April 2026) deflated by the IPCA. We apply unit-root tests,
-Johansen and Phillips-Ouliaris cointegration, error-correction models (ECM) and their
-asymmetric and threshold extensions --- M-TAR cointegration and the threshold VECM
-(TVECM), which captures the band of non-arbitrage arising from transaction costs ---,
-together with Granger causality and impulse-response analysis. Results point to strongly
-integrated markets, with long-run elasticities close to unity, fast error correction
-(15\% to 46\% per month), mostly symmetric transmission, and evidence of threshold
-effects in selected pairs. The national benchmark and the large producing states lead
-price discovery.
-
-\smallskip
-\noindent\textbf{Keywords:} price transmission; cointegration; milk market; threshold
-VECM; spatial integration.
-
-\noindent\textbf{JEL Classification:} Q13; Q11; C32.
+% AUTHOR WRITES: Resumo
+% AUTHOR WRITES: Palavras-chave
+% AUTHOR WRITES: Classificacao JEL
+% AUTHOR WRITES: Area ANPEC
+% AUTHOR WRITES: Abstract
+% AUTHOR WRITES: Keywords
+% AUTHOR WRITES: JEL Classification
 \end{spacing}
-
-\vspace{0.6em}
-\hrule
-\vspace{0.8em}
 
 % =====================================================================
 \section{Introdução}
-A pergunta central é dupla: (i) os mercados regionais compartilham um equilíbrio de
-longo prazo (Lei do Preço Único)? e (ii) como choques de preço se propagam entre eles
---- com que velocidade, em que direção e de forma simétrica ou assimétrica? A resposta
-tem implicações para a eficiência do mercado, a formação de políticas de preços agrícolas
-e a compreensão do poder de mercado ao longo da cadeia do leite.
-
-A análise segue o arcabouço clássico da literatura de transmissão de preços agrícolas:
-testes de raiz unitária, cointegração de Engle-Granger e Johansen, modelos de correção
-de erro (ECM), suas extensões assimétricas e de limiar --- cointegração com limiar M-TAR
-e VECM com limiar (TVECM), que captura a \emph{banda de não-arbitragem} decorrente de
-custos de transação. Causalidade de Granger e funções de impulso-resposta de um VAR
-completam o quadro.
+% AUTHOR WRITES
 
 % =====================================================================
 \section{Dados e tratamento}
-Utiliza-se o Indicador CEPEA/ESALQ-USP do preço do leite ao produtor, na definição de
-\emph{preço líquido médio} (efetivamente recebido pelo produtor, líquido de frete e
-tributos), por ser a série contínua ao longo de todo o período. Mantêm-se apenas as
-regiões com cobertura completa (jan/2016--abr/2026); Ceará e Mato Grosso do Sul foram
-excluídos por terem séries interrompidas. Os preços são deflacionados pelo IPCA
-(número-índice do IBGE, obtido via API do IPEA) e expressos a preços do último mês;
-trabalha-se com o logaritmo natural. O Quadro~\ref{quad:fonte} resume a fonte e as
-variáveis; a Tabela~\ref{tab:descritiva} traz as estatísticas descritivas.
+% AUTHOR WRITES
 
 \input{tabelas/quadro_fonte.tex}
 \input{tabelas/tab_descritiva.tex}
-
-Os níveis médios são próximos entre as regiões (R\$~2,29 a R\$~2,51/litro) e os
-coeficientes de variação são semelhantes ($\approx 20$--$24\%$), um primeiro indício de
-que os mercados se movem de forma articulada (Figuras~\ref{fig:series} e \ref{fig:spreads}).
 
 \begin{figure}[H]\centering
   \includegraphics[width=0.82\textwidth]{fig01_series.png}
@@ -171,71 +111,28 @@ que os mercados se movem de forma articulada (Figuras~\ref{fig:series} e \ref{fi
 
 % =====================================================================
 \section{Estratégia empírica}
-A sequência metodológica e as hipóteses de cada teste estão resumidas no
-Quadro~\ref{quad:metodos}. Em termos práticos: primeiro verifica-se a ordem de
-integração das séries; confirmando-se que são $I(1)$, testa-se a cointegração; havendo
-cointegração, estima-se a dinâmica de curto prazo (ECM) e suas assimetrias; por fim,
-modelos de limiar (TVECM) e o VAR fornecem, respectivamente, a banda de não-arbitragem e
-a propagação de choques.
+% AUTHOR WRITES
 
 \input{tabelas/quadro_metodos.tex}
 
 % =====================================================================
 \section{Resultados}
+% AUTHOR WRITES
 
 \subsection{Ordem de integração}
-A Tabela~\ref{tab:raiz} reporta os testes de raiz unitária. Em nível, a maioria das
-séries não rejeita fortemente a hipótese de raiz unitária pelos critérios conjuntos; em
-primeira diferença, o ADF rejeita amplamente a raiz unitária. Conclui-se que os preços
-são integrados de ordem 1, $I(1)$ --- condição necessária para a cointegração.
+% AUTHOR WRITES
 
 \input{tabelas/tab_raiz.tex}
 
-\noindent{\footnotesize\textit{Nota:} valores críticos a 5\%: ADF (com tendência)
-$\approx -3{,}43$; KPSS $\approx 0{,}146$. ADF/PP: rejeitar $H_0$ (raiz unitária) se a
-estatística for inferior ao crítico; KPSS: rejeitar estacionariedade se a estatística
-superar o crítico.\par}
-
 \subsection{Cointegração e correção de erro}
-O teste de Johansen sobre o sistema completo indica a existência de relações de
-cointegração entre as nove séries. Na análise par a par (Tabela~\ref{tab:par}), o teste
-de Phillips-Ouliaris confirma cointegração com a Média Brasil para a maioria dos estados.
-As elasticidades de longo prazo ($\beta$) situam-se próximas de 1 (0,87 a 1,09),
-compatíveis com a Lei do Preço Único.
-
-O termo de correção de erro ($\alpha$) é negativo e significativo em todos os casos,
-indicando convergência ao equilíbrio, com velocidades de ajuste de $\approx 15\%$
-(Goiás) a $46\%$ ao mês (Santa Catarina). A comparação entre $\alpha^{+}$ e $\alpha^{-}$
-e o teste M-TAR, em geral, não rejeita a simetria: a transmissão de altas e de baixas
-ocorre a velocidades semelhantes na maioria dos estados.
+% AUTHOR WRITES
 
 \input{tabelas/tab_par.tex}
 
-\noindent{\footnotesize\textit{Nota:} $\beta_{LP}$ = elasticidade de longo prazo;
-$\alpha$ = velocidade de ajuste mensal; $\alpha^{+}/\alpha^{-}$ = ajuste a desvios
-positivos/negativos; as colunas de assimetria e Granger reportam valores-$p$;
-Coint.\ (P-O) = cointegração pelo teste de Phillips-Ouliaris a 5\%.\par}
-
 \subsection{Modelo com limiar (TVECM) e banda de não-arbitragem}
-O TVECM permite que a velocidade de ajuste mude conforme o tamanho do desvio do
-equilíbrio. A intuição econômica é a \emph{banda de não-arbitragem}: enquanto o desvio
-for menor que os custos de transação (regime interno), não compensa arbitrar e o ajuste é
-fraco; quando o desvio ultrapassa o limiar (regime externo), a arbitragem espacial age e
-o preço retorna rapidamente ao equilíbrio. A Tabela~\ref{tab:tvecm} traz o limiar
-estimado, as velocidades de ajuste por regime e o teste de Hansen-Seo.
-
-Para vários pares, o ajuste é nitidamente mais forte em um dos regimes, e o teste de
-Hansen-Seo aponta efeito de limiar relevante ($p \le 0{,}05$, p.ex.\ Minas Gerais e São
-Paulo), corroborando a hipótese de custos de transação na integração espacial. A
-Figura~\ref{fig:tvecm} ilustra o mecanismo: a inclinação mais acentuada à esquerda do
-limiar evidencia o regime de ajuste rápido.
+% AUTHOR WRITES
 
 \input{tabelas/tab_tvecm.tex}
-
-\noindent{\footnotesize\textit{Nota:} $\alpha$ reg.\ = velocidade de ajuste por regime;
-$n_1,n_2$ = nº de observações em cada regime; Hansen-Seo = valor-$p$ do teste de efeito
-de limiar (rejeitar $H_0$ linear se $p<0{,}05$). Coeficientes de regimes com poucas
-observações devem ser lidos com cautela.\par}
 
 \begin{figure}[H]\centering
   \includegraphics[width=0.82\textwidth]{fig04_tvecm_regimes.png}
@@ -245,10 +142,7 @@ observações devem ser lidos com cautela.\par}
 \end{figure}
 
 \subsection{Causalidade de Granger}
-A matriz de causalidade de Granger (Figura~\ref{fig:granger}) mostra a estrutura de
-precedência temporal. A Média Brasil e estados de grande peso na produção (Minas Gerais,
-São Paulo) antecedem sistematicamente os demais, sinal de liderança no descobrimento de
-preços; alguns pares exibem causalidade bidirecional.
+% AUTHOR WRITES
 
 \begin{figure}[H]\centering
   \includegraphics[width=0.75\textwidth]{fig05_granger_heatmap.png}
@@ -258,11 +152,7 @@ preços; alguns pares exibem causalidade bidirecional.
 \end{figure}
 
 \subsection{Impulso-resposta e decomposição da variância}
-As funções de impulso-resposta (Figura~\ref{fig:irf}) mostram resposta positiva dos
-estados a um choque na referência, dissipada em poucos meses. A decomposição da variância
-a 12 meses (Figura~\ref{fig:fevd} e Tabela~\ref{tab:fevd}) indica que o preço de
-referência explica parcela majoritária da variância dos estados mais integrados
-(Paraná $\approx 66\%$, Santa Catarina $\approx 61\%$, Minas Gerais $\approx 60\%$).
+% AUTHOR WRITES
 
 \begin{figure}[H]\centering
   \includegraphics[width=0.85\textwidth]{fig06_irf.png}
@@ -282,15 +172,7 @@ referência explica parcela majoritária da variância dos estados mais integrad
 
 % =====================================================================
 \section{Considerações finais}
-Os resultados desenham um mercado nacional de leite ao produtor fortemente integrado:
-as séries são $I(1)$ e cointegradas, com elasticidades de longo prazo próximas da
-unidade, correção de erro rápida (15--46\% ao mês) e transmissão majoritariamente
-simétrica. Modelos de limiar (TVECM) indicam, para parte dos pares, uma banda de
-não-arbitragem compatível com custos de transação. A causalidade de Granger e a
-decomposição da variância apontam liderança de preços nos grandes centros produtores e na
-referência nacional, com mercados periféricos mais autônomos. Tais evidências são
-coerentes com um mercado espacialmente eficiente, ainda que sujeito a fricções de
-transação em rotas específicas.
+% AUTHOR WRITES
 
 % =====================================================================
 \begin{thebibliography}{99}
