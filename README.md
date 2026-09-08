@@ -84,6 +84,8 @@ não-arbitragem; Balke & Fomby) · **causalidade de Granger** · **VAR/IRF/FEVD*
 
 ## Licença, citação e uso de IA
 
+Code: MIT ([LICENSE](LICENSE)). Text, documentation and data: see [LICENSING.md](LICENSING.md).
+
 Código sob licença **MIT** (ver [LICENSE](LICENSE)). Os dados pertencem ao CEPEA/ESALQ-USP
 e ao IBGE/IPEA (redistribuídos apenas para reprodutibilidade acadêmica).
 
