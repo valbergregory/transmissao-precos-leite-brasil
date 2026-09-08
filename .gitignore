@@ -13,8 +13,11 @@ resultados/
 resultados_transmissao/*.html
 resultados_transmissao/*_files/
 
-# --- Pacotes .zip regeneráveis (a pasta overleaf/ é a fonte) ---
+# --- Pacotes e saídas regeneráveis (a pasta overleaf/ é a fonte) ---
 *.zip
+*.pdf
+*.docx
+entregaveis/
 
 # --- Build LaTeX ---
 *.aux
