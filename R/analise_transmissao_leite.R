@@ -61,7 +61,11 @@ USAR_LOG    <- TRUE                  # logaritmo (coef. ~ elasticidades)
 K_LAG_MAX   <- 8                     # nº máx. de defasagens p/ seleção
 NLAG_ECM    <- 2                     # defasagens nos modelos de curto prazo
 TVECM_TRIM  <- 0.15                  # fração mín. de obs por regime (TVECM)
-HS_NBOOT    <- 100                   # reamostragens do teste de Hansen-Seo
+HS_NBOOT    <- 1000                  # reamostragens do teste de Hansen-Seo (100 deixava p-valores
+                                     # de 0,05 dentro do erro de Monte Carlo)
+MTAR_NBOOT  <- 999                   # bootstrap do teste de simetria com limiar estimado
+MTAR_TRIM   <- 0.15                  # fração excluída em cada cauda na busca do limiar (Chan, 1993)
+ALPHA_MAX   <- 1                     # |α| > 1 = correção de mais de 100%/mês: sobreajuste, não interpretar
 
 REGIOES <- c("Media Brasil", "Bahia", "Espirito Santo", "Goias",
              "Minas Gerais", "Parana", "Rio de Janeiro",
@@ -98,7 +102,12 @@ salvar_fig <- function(plot, arquivo, w = 9, h = 5.2) {
 # inflação. Usamos o número-índice do IPCA (IBGE) e expressamos tudo a preços
 # do último mês (preço real). Assim os movimentos refletem variação relativa,
 # não inflação geral.
+# Fonte local primeiro: dados/ipca_indice.csv (date, indice) versionado no repositório,
+# para que o resultado não dependa da disponibilidade da API.
+ARQ_IPCA <- file.path("dados", "ipca_indice.csv")
 obter_ipca_indice <- function() {
+  if (file.exists(ARQ_IPCA))
+    return(readr::read_csv(ARQ_IPCA, col_types = "Dd") %>% arrange(date))
   cache_dir <- "cache_ipea"; if (!dir.exists(cache_dir)) dir.create(cache_dir)
   cf <- file.path(cache_dir, "ipca_indice.rds")
   if (file.exists(cf) && difftime(Sys.time(), file.info(cf)$mtime, units = "days") < 7)
@@ -124,14 +133,17 @@ bruto <- readr::read_csv(ARQ_CEPEA, show_col_types = FALSE) %>%
   select(regiao, date, preco = all_of(COL_PRECO))
 
 if (DEFLACIONAR) {
-  ipca <- safe(obter_ipca_indice())
-  if (!is.null(ipca)) {
-    base_idx <- ipca %>% filter(date == max(bruto$date)) %>% pull(indice)
-    if (length(base_idx) == 0) base_idx <- tail(ipca$indice, 1)
-    bruto <- bruto %>% left_join(ipca, by = "date") %>%
-      mutate(preco = preco * base_idx / indice) %>% select(-indice)
-    message("Preços deflacionados pelo IPCA (base = ", format(max(bruto$date)), ").")
-  } else { message("[aviso] IPCA indisponível; usando preços NOMINAIS."); DEFLACIONAR <- FALSE }
+  # Sem IPCA a análise PARA: antes caía em preços nominais com só um aviso, o que
+  # trocava silenciosamente todos os resultados do artigo.
+  ipca <- tryCatch(obter_ipca_indice(), error = function(e)
+    stop("IPCA indisponível (", conditionMessage(e), "). Forneça ", ARQ_IPCA,
+         " ou rode com DEFLACIONAR <- FALSE de forma explícita.", call. = FALSE))
+  base_idx <- ipca %>% filter(date == max(bruto$date)) %>% pull(indice)
+  if (length(base_idx) == 0) stop("IPCA não cobre o último mês do painel (", format(max(bruto$date)), ").")
+  bruto <- bruto %>% left_join(ipca, by = "date")
+  if (anyNA(bruto$indice)) stop("IPCA sem valor para: ", paste(unique(format(bruto$date[is.na(bruto$indice)])), collapse = ", "))
+  bruto <- bruto %>% mutate(preco = preco * base_idx / indice) %>% select(-indice)
+  message("Preços deflacionados pelo IPCA (base = ", format(max(bruto$date)), ").")
 }
 
 grade <- seq(min(bruto$date), max(bruto$date), by = "month")
@@ -203,8 +215,16 @@ salvar_fig(g_heat, "fig03_corr_heatmap.png", w = 8, h = 6.5)
 # ADF e PP: rejeitar H0 (|estatística| > |valor crítico|) => estacionária.
 # KPSS: H0 = estacionária; rejeitar (estat. > crítico) => NÃO estacionária.
 # ESPERADO: nível I(1) (não rejeita ADF/PP; rejeita KPSS) e 1ª diferença I(0).
+# ADF com tendência (tau3) rejeita raiz unitária na maioria das séries, enquanto KPSS
+# e PP apontam o contrário. Para arbitrar, reportamos também o ADF só com intercepto
+# (tau2: preço real em log não tem tendência determinística óbvia) e o teste de
+# Zivot-Andrews (1992), que admite uma quebra endógena em nível e tendência: rejeitar
+# ali indica estacionariedade em torno de uma tendência quebrada, não I(1).
 testar_raiz <- function(x, nome) {
   adf_l <- safe(ur.df(x, type = "trend", selectlags = "AIC"))
+  adf_c <- safe(ur.df(x, type = "drift", selectlags = "AIC"))
+  za_lag <- max(1, ar(diff(x), aic = TRUE, order.max = K_LAG_MAX)$order)
+  za    <- safe(ur.za(x, model = "both", lag = za_lag))
   adf_d <- safe(ur.df(diff(x), type = "drift", selectlags = "AIC"))
   kp    <- safe(ur.kpss(x, type = "tau"))
   pp    <- safe(ur.pp(x, type = "Z-tau", model = "trend", lags = "short"))
@@ -212,7 +232,13 @@ testar_raiz <- function(x, nome) {
     regiao        = rotulo[nome],
     ADF_nivel     = if (!is.null(adf_l)) round(adf_l@teststat["statistic", "tau3"], 3) else NA,
     ADF_nivel_cv5 = if (!is.null(adf_l)) round(adf_l@cval["tau3", "5pct"], 3) else NA,
+    ADF_c_nivel   = if (!is.null(adf_c)) round(adf_c@teststat["statistic", "tau2"], 3) else NA,
+    ADF_c_cv5     = if (!is.null(adf_c)) round(adf_c@cval["tau2", "5pct"], 3) else NA,
     ADF_dif       = if (!is.null(adf_d)) round(adf_d@teststat["statistic", "tau2"], 3) else NA,
+    ZA_nivel      = if (!is.null(za)) round(za@teststat, 3) else NA,
+    ZA_cv5        = if (!is.null(za)) round(za@cval[2], 3) else NA,
+    ZA_quebra     = if (!is.null(za)) format(wide$date[za@bpoint], "%Y-%m") else NA,
+    ZA_lag        = za_lag,
     PP_nivel      = if (!is.null(pp)) round(pp@teststat[1], 3) else NA,
     KPSS_nivel    = if (!is.null(kp)) round(kp@teststat[1], 3) else NA,
     KPSS_cv5      = if (!is.null(kp)) round(kp@cval[1, "5pct"], 3) else NA
@@ -259,8 +285,13 @@ linearHypothesis_F <- function(modelo, a, b) { # teste F p/ igualdade de 2 coefs
 analisar_par <- function(estado, ref, nlag = NLAG_ECM) {
   y <- as.numeric(series_ts[[estado]]); x <- as.numeric(series_ts[[ref]])
 
-  jo <- safe(ca.jo(cbind(y, x), type = "trace", ecdet = "const", K = max(2, K), spec = "transitory"))
-  coint_joh <- if (!is.null(jo)) jo@teststat[length(jo@teststat)] > jo@cval[nrow(jo@cval), "5pct"] else NA
+  # Defasagem escolhida no PRÓPRIO par (SC/BIC). Antes usava o K do sistema de 9
+  # séries (AIC = 8), o que derrubava o poder do Johansen bivariado em n = 124.
+  K_par <- max(2, safe(VARselect(cbind(y, x), lag.max = K_LAG_MAX, type = "const")$selection[["SC(n)"]]) %||% 2)
+  jo <- safe(ca.jo(cbind(y, x), type = "trace", ecdet = "const", K = K_par, spec = "transitory"))
+  joh_stat <- if (!is.null(jo)) jo@teststat[length(jo@teststat)] else NA
+  joh_cv5  <- if (!is.null(jo)) jo@cval[nrow(jo@cval), "5pct"] else NA
+  coint_joh <- if (!is.null(jo)) joh_stat > joh_cv5 else NA
   po <- safe(ca.po(cbind(y, x), demean = "constant", type = "Pu"))
   coint_po <- if (!is.null(po)) as.logical(po@teststat[1] > po@cval[1, "5pct"]) else NA
 
@@ -278,23 +309,57 @@ analisar_par <- function(estado, ref, nlag = NLAG_ECM) {
   a_pos <- coef(ecm_asy)["ect_pos"]; a_neg <- coef(ecm_asy)["ect_neg"]
   assim_p <- safe(car_like_wald(ecm_asy))
 
-  du <- diff(u); ut1 <- head(u, -1); dut1 <- c(NA, head(du, -1)); Ih <- as.numeric(dut1 >= 0)
-  mdf <- tibble(du = du, pos = Ih * ut1, neg = (1 - Ih) * ut1)
-  for (i in seq_len(nlag)) mdf[[paste0("du", i)]] <- dplyr::lag(du, i)
-  mdf <- tidyr::drop_na(mdf)
-  mtar <- lm(as.formula(paste("du ~ 0 + pos + neg +", paste0("du", seq_len(nlag), collapse = " + "))), data = mdf)
+  # M-TAR: indicador I_t = 1{Δu_{t-1} >= τ}. Com τ = 0 o limiar é imposto; Enders &
+  # Siklos (2001) recomendam estimá-lo pelo método de Chan (1993): grade sobre os
+  # valores observados de Δu_{t-1} (sem MTAR_TRIM em cada cauda), escolhendo o τ de
+  # menor soma de quadrados dos resíduos. Reportamos as duas versões.
+  du <- diff(u); ut1 <- head(u, -1); dut1 <- c(NA, head(du, -1))
+  ajusta_mtar <- function(tau) {
+    Ih <- as.numeric(dut1 >= tau)
+    mdf <- tibble(du = du, pos = Ih * ut1, neg = (1 - Ih) * ut1)
+    for (i in seq_len(nlag)) mdf[[paste0("du", i)]] <- dplyr::lag(du, i)
+    mdf <- tidyr::drop_na(mdf)
+    lm(as.formula(paste("du ~ 0 + pos + neg +", paste0("du", seq_len(nlag), collapse = " + "))), data = mdf)
+  }
+  mtar <- ajusta_mtar(0)
   mtar_p <- safe(linearHypothesis_F(mtar, "pos", "neg"))
+  # Com τ escolhido nos dados, o F de simetria não tem distribuição F padrão (o limiar
+  # não é identificado sob H0: problema de Davies). O p-valor vem de um bootstrap de
+  # regressores fixos (Hansen, 1996): sob H0 (ρ+ = ρ-), reamostra os resíduos do
+  # modelo restrito, refaz a busca do limiar e compara o sup-F.
+  mdf0 <- tibble(du = du, ut1 = ut1, dut1 = dut1)
+  for (i in seq_len(nlag)) mdf0[[paste0("du", i)]] <- dplyr::lag(du, i)
+  mdf0 <- tidyr::drop_na(mdf0)
+  Xl <- as.matrix(mdf0[, paste0("du", seq_len(nlag))])
+  grade_tau <- sort(mdf0$dut1)
+  grade_tau <- grade_tau[seq(ceiling(MTAR_TRIM * length(grade_tau)), floor((1 - MTAR_TRIM) * length(grade_tau)))]
+  Xr <- cbind(mdf0$ut1, Xl)
+  Xu <- lapply(grade_tau, function(t) { Ih <- as.numeric(mdf0$dut1 >= t); cbind(Ih * mdf0$ut1, (1 - Ih) * mdf0$ut1, Xl) })
+  ssr <- function(X, y) sum(qr.resid(qr(X), y)^2)
+  supF <- function(y) {
+    s_u <- vapply(Xu, ssr, numeric(1), y = y); s_r <- ssr(Xr, y)
+    k <- which.min(s_u); list(F = (s_r - s_u[k]) / (s_u[k] / (length(y) - ncol(Xu[[k]]))), k = k)
+  }
+  obs <- supF(mdf0$du); tau_chan <- grade_tau[obs$k]
+  fit_r <- qr.fitted(qr(Xr), mdf0$du); e_r <- mdf0$du - fit_r
+  set.seed(123)
+  F_boot <- replicate(MTAR_NBOOT, supF(fit_r + sample(e_r, replace = TRUE))$F)
+  mtar_c_p <- mean(F_boot >= obs$F)
 
   gx2y <- safe(lmtest::grangertest(dy ~ dx, order = nlag))   # ref -> estado
   gy2x <- safe(lmtest::grangertest(dx ~ dy, order = nlag))   # estado -> ref
 
   tibble(
-    estado = estado, coint_johansen = coint_joh, coint_phil_oul = coint_po,
+    estado = estado, K_par = K_par, johansen_traco = round(joh_stat, 3), johansen_cv5 = round(joh_cv5, 3),
+    coint_johansen = coint_joh, coint_phil_oul = coint_po,
+    cointegrado = isTRUE(coint_joh) || isTRUE(coint_po),
     beta_LP = round(coef(lr)["x"], 3),
     alpha_ajuste = round(alpha, 3), alpha_pval = round(alpha_p, 4),
     alpha_pos = round(a_pos, 3), alpha_neg = round(a_neg, 3),
     assimetria_pval = round(assim_p %||% NA, 4),
     mtar_assim_pval = round(mtar_p %||% NA, 4),
+    mtar_tau_chan = round(tau_chan, 4),
+    mtar_chan_assim_pval = round(mtar_c_p %||% NA, 4),
     granger_ref2est = if (!is.null(gx2y)) round(gx2y$`Pr(>F)`[2], 4) else NA,
     granger_est2ref = if (!is.null(gy2x)) round(gy2x$`Pr(>F)`[2], 4) else NA
   )
@@ -314,10 +379,12 @@ readr::write_csv(tab_par, out_path("tab_transmissao_par.csv"))
 tvecm_par <- function(estado, ref = REFERENCIA) {
   Y <- cbind(series_ts[[estado]], series_ts[[ref]]); colnames(Y) <- c(estado, ref)
   m  <- safe(TVECM(Y, lag = 1, nthresh = 1, trim = TVECM_TRIM, plot = FALSE, trace = FALSE))
+  set.seed(123)   # semente por par: o p-valor não depende da ordem dos estados
   hs <- safe(TVECM.HStest(Y, lag = 1, nboot = HS_NBOOT, trim = TVECM_TRIM))
   if (is.null(m)) return(tibble(estado = estado, limiar = NA, beta_LP_tv = NA,
-                                ect_interno = NA, ect_externo = NA, n_externo = NA,
-                                n_interno = NA, HS_pval = NA))
+                                ect_regime1 = NA, ect_regime2 = NA, n_regime1 = NA,
+                                n_regime2 = NA, HS_pval = NA, alpha_implausivel = NA,
+                                limiar_significativo = NA))
   eq    <- paste("Equation", estado)
   Bdown <- coef(m)$Bdown; Bup <- coef(m)$Bup
   reg   <- m$model.specific$regime
@@ -331,6 +398,11 @@ tvecm_par <- function(estado, ref = REFERENCIA) {
     n_regime1  = sum(reg == 1, na.rm = TRUE),
     n_regime2  = sum(reg == 2, na.rm = TRUE),
     HS_pval    = if (!is.null(hs)) round(hs$PvalBoot, 4) else NA
+  ) %>% mutate(
+    # |α| > 1 implica corrigir mais que o desvio inteiro em um mês (oscilação
+    # explosiva): sinal de sobreajuste em regime com poucas observações.
+    alpha_implausivel = abs(ect_regime1) > ALPHA_MAX | abs(ect_regime2) > ALPHA_MAX,
+    limiar_significativo = !is.na(HS_pval) & HS_pval < 0.05
   )
 }
 cat("\n=== Tabela 4: TVECM (VECM com limiar) — estado vs.", rotulo[REFERENCIA], "===\n")
