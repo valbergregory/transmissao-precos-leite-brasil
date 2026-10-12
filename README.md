@@ -6,6 +6,19 @@ produtor entre as principais regiões do Brasil, com dados mensais do **CEPEA/ES
 transmissão de preços agrícolas — cointegração, correção de erro, assimetria e modelos
 com limiar (TVECM).
 
+**Trilogia.** Este repositório é o **artigo 1** de uma trilogia sobre preços do leite ao produtor:
+
+1. *Integração e simetria/limiar do ajuste* (este repositório): raiz unitária, cointegração,
+   elasticidades de longo prazo, velocidade de ajuste (meia-vida), ECM assimétrico, M-TAR e TVECM.
+2. *Liderança de preços e propagação de choques* (repositório separado, em preparação): Granger,
+   VAR/IRF/FEVD e transbordamentos de Diebold-Yilmaz.
+3. *Previsão* (em preparação).
+
+Para evitar sobreposição, a matriz de Granger (`fig05`), a IRF (`fig06`), a FEVD (`fig07`,
+`tab_fevd.csv`) e as colunas de Granger de `tab_transmissao_par.csv` **continuam sendo geradas**
+em `resultados_transmissao/` pelo script de análise, mas **não entram no texto** deste
+artigo; ficam disponíveis para o artigo complementar.
+
 ![R](https://img.shields.io/badge/R-4.4-276DC3?logo=r) ![License](https://img.shields.io/badge/license-MIT-green)
 
 ## Resultados
@@ -75,7 +88,8 @@ source("R/gerar_latex.R")               # gera as tabelas .tex e atualiza overle
 Raiz unitária (ADF, PP, KPSS) · cointegração de **Johansen** e **Phillips-Ouliaris** ·
 **ECM** e **ECM assimétrico** (von Cramon-Taubadel & Loy) · cointegração com limiar
 **M-TAR** (Enders & Siklos) · **TVECM** com teste de **Hansen & Seo** (banda de
-não-arbitragem; Balke & Fomby) · **causalidade de Granger** · **VAR/IRF/FEVD**.
+não-arbitragem; Balke & Fomby) · **causalidade de Granger** · **VAR/IRF/FEVD** (estes
+dois últimos só para o artigo complementar).
 
 Escolhas de especificação (revisão de out/2026):
 
